@@ -21,9 +21,14 @@ export default class Data extends React.Component {
   }
 
   selectYear(year) {
-    let newCrop = Object.keys(
-      this.state.analysis.minMaxYieldByCropByYear[year]
-    )[0];
+      let newCrop = null
+      if(this.state.selectedCrop in this.state.analysis.minMaxYieldByCropByYear[year]){
+          newCrop = this.state.selectedCrop
+      }else{
+        newCrop = Object.keys(
+            this.state.analysis.minMaxYieldByCropByYear[year]
+          )[0];
+      }
     this.setState({
       ...this.state,
       selectedYear: year,

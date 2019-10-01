@@ -1,6 +1,7 @@
 import React from "react";
 import Viz from "./viz";
 import api from "./api";
+import CountyInfo from "./CountyInfo";
 
 export default ({
   countyData,
@@ -83,11 +84,7 @@ export default ({
           }
         )}
       </div>
-      {selectedCountyInfo.le}
-      <div>
-        <label>County Name</label>
-        <h3>{JSON.stringify(selectedCountyInfo, null, 4)}</h3>
-      </div>
+      <CountyInfo info={selectedCountyInfo} />
     </div>
   );
 };

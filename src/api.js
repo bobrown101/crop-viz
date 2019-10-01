@@ -19,6 +19,11 @@ const getAllCountyData = () => {
 
         result = result.data.filter(x => {
             return !x.COUNTY_NAME.includes("OTHER")
+        }).map(x => {
+            return {
+                ...x,
+                YIELD_PER_ACRE: x.TOTAL_YIELD / x.TOTAL_HARVESTED_ACRES
+            }
         })
         resolve(result);
       })
@@ -32,6 +37,8 @@ const analyzeAllCountyData = countyData => {
   let allYears = [];
   let allCrops = [];
   let minMaxYieldByCropByYear = {};
+  let minMaxYieldPerAcreByCropByYear = {};
+
   countyData.forEach(x => {
     if (!allYears.includes(x.YEAR)) {
       allYears.push(x.YEAR);
@@ -47,31 +54,52 @@ const analyzeAllCountyData = countyData => {
       let countyDataForYearAndCrop = countyDataForYear.filter(
         x => x.CROP == crop
       );
-      let min = findMinInArray(countyDataForYearAndCrop, "TOTAL_YIELD");
-      let max = findMaxInArray(countyDataForYearAndCrop, "TOTAL_YIELD");
+      let yieldMin = findMinInArray(countyDataForYearAndCrop, "TOTAL_YIELD");
+      let yieldMax = findMaxInArray(countyDataForYearAndCrop, "TOTAL_YIELD");
 
-      // this will handle the case that none of this crop was grown in this year
-      if (max !== null) {
+      let yieldPerAcreMin = findMinInArray(countyDataForYearAndCrop, "YIELD_PER_ACRE");
+      let yieldPerAcreMax = findMaxInArray(countyDataForYearAndCrop, "YIELD_PER_ACRE");
+
+
+      if (yieldMax !== null) { // null means that no crop was grown in this year
         if (year in minMaxYieldByCropByYear) {
           minMaxYieldByCropByYear[year][crop] = {
-            min,
-            max
+            yieldMin,
+            yieldMax
           };
         } else {
           minMaxYieldByCropByYear[year] = {};
           minMaxYieldByCropByYear[year][crop] = {
-            min,
-            max
+            yieldMin,
+            yieldMax
           };
         }
       }
+
+
+      if (yieldPerAcreMax !== null) {  // null means that no crop was grown in this year
+        if (year in minMaxYieldPerAcreByCropByYear) {
+          minMaxYieldPerAcreByCropByYear[year][crop] = {
+            yieldPerAcreMin,
+            yieldPerAcreMax
+          };
+        } else {
+          minMaxYieldPerAcreByCropByYear[year] = {};
+          minMaxYieldPerAcreByCropByYear[year][crop] = {
+            yieldPerAcreMin,
+            yieldPerAcreMax
+          };
+        }
+      }
+
     });
   });
 
   let analyzeResults = {
     allCrops,
     allYears,
-    minMaxYieldByCropByYear
+    minMaxYieldByCropByYear,
+    minMaxYieldPerAcreByCropByYear
   };
   console.log("Found the following analysis", analyzeResults);
   return analyzeResults;
